@@ -1,36 +1,4 @@
-use std::str::FromStr;
-
-struct Point {
-    x: i32,
-    depth: i32,
-}
-
-struct Target {
-    x: i32,
-    depth: i32,
-    aim: i32,
-}
-
-pub enum Direction {
-    Forward,
-    Up,
-    Down,
-}
-
-impl FromStr for Direction {
-    type Err = ();
-
-    fn from_str(input: &str) -> Result<Direction, Self::Err> {
-        match input {
-            "forward" => Ok(Direction::Forward),
-            "up" => Ok(Direction::Up),
-            "down" => Ok(Direction::Down),
-            _ => Err(()),
-        }
-    }
-}
-
-pub type Instruction = (Direction, i32);
+pub type Instruction = (char, i32);
 
 #[aoc_generator(day2)]
 pub fn input_generator(input: &str) -> Vec<Instruction> {
@@ -39,7 +7,7 @@ pub fn input_generator(input: &str) -> Vec<Instruction> {
         .map(|l| {
             let mut line = l.trim().split(' ');
             (
-                Direction::from_str(line.next().unwrap()).unwrap(),
+                line.next().unwrap().chars().next().unwrap(),
                 line.next().unwrap().parse::<i32>().unwrap(),
             )
         })
@@ -48,49 +16,50 @@ pub fn input_generator(input: &str) -> Vec<Instruction> {
 
 #[aoc(day2, part1)]
 pub fn part1(input: &[Instruction]) -> i32 {
-    let mut loc = Point { x: 0, depth: 0 };
+    let mut x: i32 = 0;
+    let mut depth: i32 = 0;
 
     for ins in input {
         match ins.0 {
-            Direction::Up => {
-                loc.depth -= ins.1;
+            'u' => {
+                depth -= ins.1;
             }
-            Direction::Down => {
-                loc.depth += ins.1;
+            'd' => {
+                depth += ins.1;
             }
-            Direction::Forward => {
-                loc.x += ins.1;
+            'f' => {
+                x += ins.1;
             }
+            _ => {}
         }
     }
 
-    loc.depth * loc.x
+    depth * x
 }
 
 #[aoc(day2, part2)]
 pub fn part2(input: &[Instruction]) -> i32 {
-    let mut tgt = Target {
-        x: 0,
-        depth: 0,
-        aim: 0,
-    };
+    let mut x: i32 = 0;
+    let mut depth: i32 = 0;
+    let mut aim: i32 = 0;
 
     for ins in input {
         match ins.0 {
-            Direction::Up => {
-                tgt.aim -= ins.1;
+            'u' => {
+                aim -= ins.1;
             }
-            Direction::Down => {
-                tgt.aim += ins.1;
+            'd' => {
+                aim += ins.1;
             }
-            Direction::Forward => {
-                tgt.x += ins.1;
-                tgt.depth += tgt.aim * ins.1;
+            'f' => {
+                x += ins.1;
+                depth += aim * ins.1;
             }
+            _ => {}
         }
     }
 
-    tgt.depth * tgt.x
+    depth * x
 }
 
 #[cfg(test)]
