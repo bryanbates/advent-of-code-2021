@@ -26,7 +26,7 @@ impl Board {
                 self.cells[offset + 4],
             ];
             if row.iter().all(|el| marked.contains(el)) {
-                println!("Found a row: {:?}", row);
+                debug!("Found a row: {:?}", row);
                 return true;
             }
         }
@@ -40,19 +40,19 @@ impl Board {
                 self.cells[c + 20],
             ];
             if col.iter().all(|el| marked.contains(el)) {
-                println!("Found a col: {:?}", col);
+                debug!("Found a col: {:?}", col);
                 return true;
             }
         }
         // // Diagonals DON'T COUNT...
         // let nwse = [self.cells[0], self.cells[6], self.cells[12], self.cells[18], self.cells[24]];
         // if nwse.iter().all(|el| marked.contains(el)) {
-        //     println!("Found a nwse: {:?}", nwse);
+        //     debug!("Found a nwse: {:?}", nwse);
         //     return true;
         // }
         // let nesw = [self.cells[4], self.cells[8], self.cells[12], self.cells[16], self.cells[20]];
         // if nesw.iter().all(|el| marked.contains(el)) {
-        //     println!("Found a nesw: {:?}", nesw);
+        //     debug!("Found a nesw: {:?}", nesw);
         //     return true;
         // }
         false
@@ -60,11 +60,9 @@ impl Board {
 
     fn score(&self, marked: &[u8]) -> u32 {
         // Sum of all unmarked cells
-        self.cells
-            .iter()
-            .copied()
-            .filter(|el| !marked.contains(el))
-            .map(|el| el as u32)
+        self.cells.iter()
+            .filter(|&el| !marked.contains(el))
+            .map(|&el| el as u32)
             .sum()
     }
 }
