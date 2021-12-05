@@ -1,15 +1,13 @@
-use std::collections::HashSet;
-
 #[derive(Debug, Clone)]
-struct Board {
+pub struct Board {
     cells: Vec<u8>,
-    id: usize,
+    score: u32,
 }
 
 impl Board {
-    pub fn new(id: usize) -> Self {
+    pub fn new() -> Self {
         Board {
-            id,
+            score: 0,
             cells: Vec::with_capacity(25),
         }
     }
@@ -58,24 +56,25 @@ impl Board {
         false
     }
 
-    fn score(&self, marked: &[u8]) -> u32 {
-        // Sum of all unmarked cells
-        self.cells.iter()
-            .filter(|&el| !marked.contains(el))
-            .map(|&el| el as u32)
-            .sum()
+    fn solve(&mut self, calls: &[u8]) {
+        let mut score: u32 = self.cells.iter().map(|&el| el as u32).sum();
+        let mut marks = Vec::<u8>::new();
+
+        for &round in calls {
+            score -= round as u32;
+            marks.push(round);
+            if self.winp(&marks) {
+                self.score = score * (round as u32);
+                break;
+            }
+        }
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct Game {
-    call: Vec<u8>,
-    boards: Vec<Board>,
-}
 
 // Default implementation: Chunk on whitespace
 #[aoc_generator(day4)]
-pub fn input_generator(input: &str) -> Vec<Game> {
+pub fn input_generator(input: &str) -> Vec<Board> {
     let mut lines = input.lines();
 
     // Read calls
@@ -89,23 +88,19 @@ pub fn input_generator(input: &str) -> Vec<Game> {
 
     debug!("Found calls: {:?}", call);
 
-    let mut game: Game = Game {
-        call,
-        boards: Vec::new(),
-    };
+    let mut boards: Vec<Board> = Vec::new();
 
-    let mut board = Board::new(0);
-
-    let mut board_id: usize = 0;
+    let mut board = Board::new();
 
     // Read boards
     for line in lines {
         if line.trim().is_empty() {
             if !board.cells.is_empty() {
-                game.boards.push(board);
+                // Go ahead and solve it
+                board.solve(&call);
+                boards.push(board);
             }
-            board_id += 1;
-            board = Board::new(board_id);
+            board = Board::new();
         } else {
             debug!("Parsing line: {}", line);
             board.cells.append(
@@ -120,61 +115,24 @@ pub fn input_generator(input: &str) -> Vec<Game> {
     }
     // Catch the last board
     if !board.cells.is_empty() {
-        game.boards.push(board);
+        // Go ahead and solve it
+        board.solve(&call);
+        boards.push(board);
     }
 
-    info!("GAME: {:?}", game);
-
-    vec![game]
+    // We want the first one to be the highest score
+    boards.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+    boards
 }
 
 #[aoc(day4, part1)]
-pub fn part1(input: &[Game]) -> u32 {
-    // Bit of a hack, we just read 1 "game"
-    let game = &input[0];
-    for i in 0..game.call.len() {
-        let this_call = game.call[i] as u32;
-        debug!("ROUND: {:?}", &game.call[0..=i]);
-        for board in &game.boards {
-            // See if the current set of calls results in a win for any board
-            let win = board.winp(&game.call[0..=i]);
-            if win {
-                debug!("Board: {:?}", board);
-                return board.score(&game.call[0..=i]) * this_call;
-            }
-        }
-    }
-    0
+pub fn part1(input: &[Board]) -> u32 {
+    input.first().unwrap().score
 }
 
 #[aoc(day4, part2)]
-pub fn part2(input: &[Game]) -> u32 {
-    // Bit of a hack, we just read 1 "game"
-    let game = &input[0];
-    let mut won_boards: HashSet<usize> = HashSet::new();
-
-    for i in 0..game.call.len() {
-        let this_call = game.call[i] as u32;
-        debug!("ROUND: {:?}", &game.call[0..=i]);
-        let remaining = game
-            .boards
-            .iter()
-            .filter(|&b| !won_boards.contains(&b.id))
-            .collect::<Vec<_>>();
-        for board in remaining {
-            // See if the current set of calls results in a win for any board
-            if board.winp(&game.call[0..=i]) {
-                debug!("Board Won on this round: {:?}", board);
-                let score = board.score(&game.call[0..=i]) * this_call;
-                won_boards.insert(board.id);
-                if won_boards.len() == game.boards.len() {
-                    // This was the last board to win.
-                    return score;
-                }
-            }
-        }
-    }
-    0
+pub fn part2(input: &[Board]) -> u32 {
+    input.last().unwrap().score
 }
 
 #[cfg(test)]
