@@ -2,14 +2,16 @@ use std::collections::VecDeque;
 
 #[aoc_generator(day6)]
 pub fn input_generator(input: &str) -> Vec<u64> {
-    input.trim().split(',').map(|s| {
-        s.parse::<u64>().unwrap()
-    }).collect()
+    input
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<u64>().unwrap())
+        .collect()
 }
 
 pub fn input_helper(input: &[u64]) -> [u64; 9] {
     // INITIALIZE
-    let mut fish: [u64;9] = [0; 9];
+    let mut fish: [u64; 9] = [0; 9];
 
     for &i in input {
         fish[i as usize] += 1;
@@ -34,7 +36,7 @@ fn sim_2(init: [u64; 9], days: usize) -> u64 {
     for _ in 0..days {
         let v = fish[0];
         for i in 1..=8 {
-            fish[i-1] = fish[i];
+            fish[i - 1] = fish[i];
         }
         fish[6] += v;
         fish[8] = v;
@@ -76,7 +78,6 @@ fn sim(init: [u64; 9], days: usize) -> u64 {
 
     fish.iter().sum()
 }
-
 
 #[aoc(day6, part1, unroll)]
 pub fn part1(input: &[u64]) -> u64 {

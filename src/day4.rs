@@ -71,7 +71,6 @@ impl Board {
     }
 }
 
-
 // Default implementation: Chunk on whitespace
 #[aoc_generator(day4)]
 pub fn input_generator(input: &str) -> Vec<Board> {
