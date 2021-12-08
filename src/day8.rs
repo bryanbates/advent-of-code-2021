@@ -182,6 +182,48 @@ pub fn part2(input: &[Chunk]) -> u32 {
         .sum()
 }
 
+////////////////////////////////////////////////////////////////////////
+// Much more compact solution adapted from the reddit megathread...
+//
+fn to_hashset(chars: &str) -> HashSet<u8> {
+    HashSet::from_iter(chars.bytes())
+}
+
+#[aoc(day8, part2, intersect)]
+pub fn part2_intersect(input: &[Chunk]) -> u32 {
+    input.iter().map(|(signal, output)| {
+        let splits: Vec<HashSet<u8>> = signal.iter().map(|s| to_hashset(s)).collect();
+        let one = splits.iter().find(|&x| x.len() == 2).unwrap().to_owned();
+        let four = splits.iter().find(|&x| x.len() == 4).unwrap().to_owned();
+
+        let res =
+            output
+                .iter()
+            .map(|o| to_hashset(o))
+            .fold(Vec::with_capacity(4), |mut res, digit| {
+                match (
+                    digit.len(),
+                    one.intersection(&digit).count(),
+                    four.intersection(&digit).count(),
+                ) {
+                    (2, _, _) => res.push(1),
+                    (3, _, _) => res.push(7),
+                    (4, _, _) => res.push(4),
+                    (5, 2, _) => res.push(3),
+                    (5, _, 2) => res.push(2),
+                    (5, _, _) => res.push(5),
+                    (6, 1, _) => res.push(6),
+                    (6, _, 4) => res.push(9),
+                    (6, _, _) => res.push(0),
+                    (7, _, _) => res.push(8),
+                    _ => unreachable!(),
+                }
+                res
+            });
+        res[0] * 1000 + res[1] * 100 + res[2] * 10 + res[3]
+    }).sum()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -205,6 +247,7 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 
     #[test]
     fn part2_ex1() {
-        assert_eq!(part2(&input_generator(EXAMPLE_INPUT)), 61229)
+        assert_eq!(part2(&input_generator(EXAMPLE_INPUT)), 61229);
+        assert_eq!(part2_intersect(&input_generator(EXAMPLE_INPUT)), 61229)
     }
 }
