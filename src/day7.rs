@@ -1,5 +1,5 @@
-use rayon::prelude::*;
 use memoize::memoize;
+use rayon::prelude::*;
 
 #[aoc_generator(day7)]
 pub fn input_generator(input: &str) -> Vec<i32> {
@@ -11,16 +11,16 @@ pub fn input_generator(input: &str) -> Vec<i32> {
 }
 
 fn const_consumption(input: &[i32], target: i32) -> i32 {
-    input.iter().map(|x| (target-x).abs()).sum()
+    input.iter().map(|x| (target - x).abs()).sum()
 }
 
 #[memoize]
 fn mem_const_consumption(input: Vec<i32>, target: i32) -> i32 {
-    input.iter().map(|x| (target-x).abs()).sum()
+    input.iter().map(|x| (target - x).abs()).sum()
 }
 
 fn par_const_consumption(input: &[i32], target: i32) -> i32 {
-    input.par_iter().map(|x| (target-x).abs()).sum()
+    input.par_iter().map(|x| (target - x).abs()).sum()
 }
 
 #[aoc(day7, part1, brute)]
@@ -28,9 +28,9 @@ pub fn part1(input: &[i32]) -> i32 {
     let min_pos: i32 = *input.iter().min().unwrap();
     let max_pos: i32 = *input.iter().max().unwrap();
 
-    let fuel = (min_pos..=max_pos).map(|pos| {
-        const_consumption(input, pos)
-    }).collect::<Vec<i32>>();
+    let fuel = (min_pos..=max_pos)
+        .map(|pos| const_consumption(input, pos))
+        .collect::<Vec<i32>>();
     *fuel.iter().min().unwrap()
 }
 
@@ -39,9 +39,10 @@ pub fn part1_parallel(input: &[i32]) -> i32 {
     let min_pos: i32 = *input.iter().min().unwrap();
     let max_pos: i32 = *input.iter().max().unwrap();
 
-    let fuel = (min_pos..=max_pos).into_par_iter().map(|pos| {
-        par_const_consumption(input, pos)
-    }).collect::<Vec<i32>>();
+    let fuel = (min_pos..=max_pos)
+        .into_par_iter()
+        .map(|pos| par_const_consumption(input, pos))
+        .collect::<Vec<i32>>();
     *fuel.iter().min().unwrap()
 }
 
@@ -52,9 +53,9 @@ pub fn part1_memo(input: &[i32]) -> i32 {
 
     let ivec = input.to_vec();
 
-    let fuel = (min_pos..=max_pos).map(|pos| {
-        mem_const_consumption(ivec.clone(), pos)
-    }).collect::<Vec<i32>>();
+    let fuel = (min_pos..=max_pos)
+        .map(|pos| mem_const_consumption(ivec.clone(), pos))
+        .collect::<Vec<i32>>();
     *fuel.iter().min().unwrap()
 }
 
@@ -65,7 +66,8 @@ pub fn part1_stats(input: &[i32]) -> i32 {
 }
 
 fn cumulative_consumption(input: &[i32], target: i32) -> i32 {
-    input.iter()
+    input
+        .iter()
         .map(|x| {
             let delta = (target - x).abs();
             delta * (delta + 1) / 2
@@ -75,7 +77,8 @@ fn cumulative_consumption(input: &[i32], target: i32) -> i32 {
 
 #[memoize]
 fn mem_cumulative_consumption(input: Vec<i32>, target: i32) -> i32 {
-    input.iter()
+    input
+        .iter()
         .map(|x| {
             let delta = (target - x).abs();
             delta * (delta + 1) / 2
@@ -84,7 +87,8 @@ fn mem_cumulative_consumption(input: Vec<i32>, target: i32) -> i32 {
 }
 
 fn par_cumulative_consumption(input: &[i32], target: i32) -> i32 {
-    input.par_iter()
+    input
+        .par_iter()
         .map(|x| {
             let delta = (target - x).abs();
             delta * (delta + 1) / 2
@@ -97,9 +101,9 @@ pub fn part2(input: &[i32]) -> i32 {
     let min_pos: i32 = *input.iter().min().unwrap();
     let max_pos: i32 = *input.iter().max().unwrap();
 
-    let fuel = (min_pos..=max_pos).map(|pos| {
-        cumulative_consumption(input, pos)
-    }).collect::<Vec<i32>>();
+    let fuel = (min_pos..=max_pos)
+        .map(|pos| cumulative_consumption(input, pos))
+        .collect::<Vec<i32>>();
 
     *fuel.iter().min().unwrap()
 }
@@ -109,9 +113,10 @@ pub fn part2_parallel(input: &[i32]) -> i32 {
     let min_pos: i32 = *input.iter().min().unwrap();
     let max_pos: i32 = *input.iter().max().unwrap();
 
-    let fuel = (min_pos..=max_pos).into_par_iter().map(|pos| {
-        par_cumulative_consumption(input, pos)
-    }).collect::<Vec<i32>>();
+    let fuel = (min_pos..=max_pos)
+        .into_par_iter()
+        .map(|pos| par_cumulative_consumption(input, pos))
+        .collect::<Vec<i32>>();
 
     *fuel.iter().min().unwrap()
 }
@@ -123,9 +128,9 @@ pub fn part2_memo(input: &[i32]) -> i32 {
 
     let ivec = input.to_vec();
 
-    let fuel = (min_pos..=max_pos).map(|pos| {
-        mem_cumulative_consumption(ivec.clone(), pos)
-    }).collect::<Vec<i32>>();
+    let fuel = (min_pos..=max_pos)
+        .map(|pos| mem_cumulative_consumption(ivec.clone(), pos))
+        .collect::<Vec<i32>>();
 
     *fuel.iter().min().unwrap()
 }

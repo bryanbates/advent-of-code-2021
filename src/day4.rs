@@ -4,6 +4,12 @@ pub struct Board {
     score: u32,
 }
 
+impl Default for Board {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Board {
     pub fn new() -> Self {
         Board {
