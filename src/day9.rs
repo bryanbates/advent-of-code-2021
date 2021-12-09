@@ -87,13 +87,19 @@ fn basin_size(grid: Grid, low: Point) -> u32 {
 pub fn part1(input: &str) -> u32 {
     let grid = parse_input(input);
 
-    lowcations(grid).iter().map(|(x, y)| grid[*x][*y] + 1).fold(0_u32, |acc, v| acc + v as u32)
+    lowcations(grid)
+        .iter()
+        .map(|(x, y)| grid[*x][*y] + 1)
+        .fold(0_u32, |acc, v| acc + v as u32)
 }
 
 #[aoc(day9, part2)]
 pub fn part2(input: &str) -> u32 {
     let grid = parse_input(input);
-    let mut basins = lowcations(grid).iter().map(|p| basin_size(grid, *p)).collect::<Vec<u32>>();
+    let mut basins = lowcations(grid)
+        .iter()
+        .map(|p| basin_size(grid, *p))
+        .collect::<Vec<u32>>();
     basins.sort_unstable();
     // println!("{:?}", basins);
     basins.pop().unwrap() * basins.pop().unwrap() * basins.pop().unwrap()
