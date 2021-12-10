@@ -3,7 +3,7 @@ pub fn input_generator(input: &str) -> Vec<String> {
     input.trim().lines().map(|l| l.trim().to_owned()).collect()
 }
 
-fn score_char(ch: char) -> u64 {
+fn score_illegal_char(ch: char) -> u64 {
     match ch {
         ')' => 3,
         ']' => 57,
@@ -13,7 +13,7 @@ fn score_char(ch: char) -> u64 {
     }
 }
 
-fn score_char_2(ch: char) -> u64 {
+fn score_completion_char(ch: char) -> u64 {
     match ch {
         '(' => 1,
         '[' => 2,
@@ -23,9 +23,19 @@ fn score_char_2(ch: char) -> u64 {
     }
 }
 
-fn score_line(line: &str) -> u64 {
+fn char_pair(ch: char) -> char {
+    match ch {
+        '(' => ')',
+        '[' => ']',
+        '{' => '}',
+        '<' => '>',
+        _ => ch,
+    }
+}
+
+fn score_corrupt_line(line: &str) -> u64 {
     let mut stack: Vec<char> = Vec::new();
-    println!("Line: {:?}", line);
+    // println!("Line: {:?}", line);
     for ch in line.chars() {
         // println!("{}, Stack: {:?}", ch, stack);
         match ch {
@@ -33,41 +43,10 @@ fn score_line(line: &str) -> u64 {
                 stack.push(ch);
             }
             '}' | ')' | ']' | '>' => {
-                match stack.pop() {
-                    Some(x) => {
-                        match x {
-                            '(' => {
-                                if ch != ')' {
-                                    // Corrupt!
-                                    println!("Expected ), but found {} instead.", ch);
-                                    return score_char(ch);
-                                }
-                            }
-                            '[' => {
-                                if ch != ']' {
-                                    // Corrupt!
-                                    println!("Expected ], but found {} instead.", ch);
-                                    return score_char(ch);
-                                }
-                            }
-                            '{' => {
-                                if ch != '}' {
-                                    // Corrupt!
-                                    println!("Expected }}, but found {} instead.", ch);
-                                    return score_char(ch);
-                                }
-                            }
-                            '<' => {
-                                if ch != '>' {
-                                    // Corrupt!
-                                    println!("Expected >, but found {} instead.", ch);
-                                    return score_char(ch);
-                                }
-                            }
-                            _ => unreachable!(),
-                        }
-                    }
-                    None => unreachable!(),
+                let expect = char_pair(stack.pop().unwrap());
+                if ch != expect {
+                    // println!("Corrupt!  Expected {}, but found {} instead.", expect, ch);
+                    return score_illegal_char(ch);
                 }
             }
             _ => unreachable!(),
@@ -75,14 +54,14 @@ fn score_line(line: &str) -> u64 {
     }
 
     // if !stack.is_empty() {
-    //     // println!("Incomplete, but that's ok for now?");
+    //     println!("Incomplete, but that's ok for now?");
     // }
     0
 }
 
-fn score_line_2(line: &str) -> u64 {
+fn score_incomplete_line(line: &str) -> u64 {
     let mut stack: Vec<char> = Vec::new();
-    println!("Line: {:?}", line);
+    // println!("Line: {:?}", line);
     for ch in line.chars() {
         // println!("{}, Stack: {:?}", ch, stack);
         match ch {
@@ -90,37 +69,10 @@ fn score_line_2(line: &str) -> u64 {
                 stack.push(ch);
             }
             '}' | ')' | ']' | '>' => {
-                match stack.pop() {
-                    Some(x) => {
-                        match x {
-                            '(' => {
-                                if ch != ')' {
-                                    // Corrupt!
-                                    return 0;
-                                }
-                            }
-                            '[' => {
-                                if ch != ']' {
-                                    // Corrupt!
-                                    return 0;
-                                }
-                            }
-                            '{' => {
-                                if ch != '}' {
-                                    // Corrupt!
-                                    return 0;
-                                }
-                            }
-                            '<' => {
-                                if ch != '>' {
-                                    // Corrupt!
-                                    return 0;
-                                }
-                            }
-                            _ => unreachable!(),
-                        }
-                    }
-                    None => unreachable!(),
+                let expect = char_pair(stack.pop().unwrap());
+                if ch != expect {
+                    // println!("Corrupt!  Expected {}, but found {} instead.", expect, ch);
+                    return 0;
                 }
             }
             _ => unreachable!(),
@@ -128,12 +80,12 @@ fn score_line_2(line: &str) -> u64 {
     }
 
     if !stack.is_empty() {
-        println!("Incomplete, stack: {:?}", stack);
+        // println!("Incomplete, stack: {:?}", stack);
         let mut score: u64 = 0;
 
         while let Some(ch) = stack.pop() {
             score *= 5;
-            score += score_char_2(ch);
+            score += score_completion_char(ch);
         }
         return score;
     }
@@ -142,12 +94,11 @@ fn score_line_2(line: &str) -> u64 {
 
 #[aoc(day10, part1)]
 pub fn part1(input: &[String]) -> u64 {
-    let corrupt = input
+    input
         .iter()
-        .map(|line| score_line(line))
+        .map(|line| score_corrupt_line(line))
         .filter(|&s| s != 0)
-        .collect::<Vec<_>>();
-    corrupt.iter().sum::<u64>()
+        .sum::<u64>()
 }
 
 #[aoc(day10, part2)]
@@ -155,7 +106,7 @@ pub fn part2(input: &[String]) -> u64 {
     statistical::median(
         &input
             .iter()
-            .map(|line| score_line_2(line))
+            .map(|line| score_incomplete_line(line))
             .filter(|&s| s != 0)
             .collect::<Vec<_>>(),
     )
@@ -184,7 +135,7 @@ mod tests {
 
     #[test]
     fn part1_ex1a() {
-        assert_eq!(score_line("{([(<{}[<>[]}>{[]{[(<()>"), 1197)
+        assert_eq!(score_corrupt_line("{([(<{}[<>[]}>{[]{[(<()>"), 1197)
     }
 
     #[test]
@@ -194,23 +145,23 @@ mod tests {
 
     #[test]
     fn part2_ex1a() {
-        assert_eq!(score_line_2("[({(<(())[]>[[{[]{<()<>>"), 288957);
+        assert_eq!(score_incomplete_line("[({(<(())[]>[[{[]{<()<>>"), 288957);
     }
 
     #[test]
     fn part2_ex1b() {
-        assert_eq!(score_line_2("[(()[<>])]({[<{<<[]>>("), 5566);
+        assert_eq!(score_incomplete_line("[(()[<>])]({[<{<<[]>>("), 5566);
     }
     #[test]
     fn part2_ex1c() {
-        assert_eq!(score_line_2("(((({<>}<{<{<>}{[]{[]{}"), 1480781);
+        assert_eq!(score_incomplete_line("(((({<>}<{<{<>}{[]{[]{}"), 1480781);
     }
     #[test]
     fn part2_ex1d() {
-        assert_eq!(score_line_2("{<[[]]>}<{[{[{[]{()[[[]"), 995444);
+        assert_eq!(score_incomplete_line("{<[[]]>}<{[{[{[]{()[[[]"), 995444);
     }
     #[test]
     fn part2_ex1e() {
-        assert_eq!(score_line_2("<{([{{}}[<[[[<>{}]]]>[]]"), 294);
+        assert_eq!(score_incomplete_line("<{([{{}}[<[[[<>{}]]]>[]]"), 294);
     }
 }
