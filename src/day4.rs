@@ -67,7 +67,8 @@ impl Board {
         let mut marks = Vec::<u8>::new();
 
         for &round in calls {
-            score -= round as u32;
+            score = score.saturating_sub(round as u32);
+            // score -= round as u32;
             marks.push(round);
             if self.winp(&marks) {
                 self.score = score * (round as u32);

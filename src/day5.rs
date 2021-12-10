@@ -59,10 +59,10 @@ fn draw(input: &[&Line]) -> HashMap<(i32, i32), i32> {
         let mut x = line.x0;
         let mut y = line.y0;
 
-        println!(
-            "Drawing {:?} starting at ({}, {}) by steps {}, {}",
-            line, x, y, xstep, ystep
-        );
+        // println!(
+        //     "Drawing {:?} starting at ({}, {}) by steps {}, {}",
+        //     line, x, y, xstep, ystep
+        // );
 
         loop {
             // Draw at point

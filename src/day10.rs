@@ -85,7 +85,9 @@ fn score_incomplete_line(line: &str) -> u64 {
 
         while let Some(ch) = stack.pop() {
             score *= 5;
+            // score = score.saturating_mul(5);
             score += score_completion_char(ch);
+            // score = score.saturating_add(score_completion_char(ch));
         }
         return score;
     }
