@@ -1,11 +1,11 @@
 use std::collections::HashSet;
 use std::collections::VecDeque;
 
-const ROWS: usize = 100;
-const COLS: usize = 100;
+// const ROWS: usize = 100;
+// const COLS: usize = 100;
 
-// const ROWS: usize = 5;
-// const COLS: usize = 10;
+const ROWS: usize = 5;
+const COLS: usize = 10;
 
 type Grid = [[u8; ROWS]; COLS];
 type Point = (usize, usize);
