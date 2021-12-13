@@ -4,10 +4,13 @@ type Edge = (String, String);
 
 #[aoc_generator(day12)]
 pub fn input_generator(input: &str) -> Vec<Edge> {
-    input.lines().map(|l| {
-        let mut line = l.trim().split('-').map(|s| s.to_owned());
-        (line.next().unwrap(), line.next().unwrap())
-    }).collect()
+    input
+        .lines()
+        .map(|l| {
+            let mut line = l.trim().split('-').map(|s| s.to_owned());
+            (line.next().unwrap(), line.next().unwrap())
+        })
+        .collect()
 }
 
 type Graph = HashMap<String, Vec<String>>;
@@ -15,8 +18,14 @@ type Graph = HashMap<String, Vec<String>>;
 fn to_map(edges: &[Edge]) -> Graph {
     let mut graph: Graph = HashMap::new();
     for (from, to) in edges {
-        graph.entry(from.clone()).or_insert_with(Vec::new).push(to.clone());
-        graph.entry(to.clone()).or_insert_with(Vec::new).push(from.clone());
+        graph
+            .entry(from.clone())
+            .or_insert_with(Vec::new)
+            .push(to.clone());
+        graph
+            .entry(to.clone())
+            .or_insert_with(Vec::new)
+            .push(from.clone());
     }
     graph
 }
@@ -71,13 +80,23 @@ fn explore_bonus(graph: Graph, node: String, cpath: Vec<String>, bonus: Option<S
                 match cpath.iter().filter(|&x| x == child).count() {
                     0 => {
                         // Continue, we haven't visited this child yet
-                        paths_to_end += explore_bonus(graph.clone(), child.clone(), next_path.clone(), bonus.clone());
-                    },
+                        paths_to_end += explore_bonus(
+                            graph.clone(),
+                            child.clone(),
+                            next_path.clone(),
+                            bonus.clone(),
+                        );
+                    }
                     1 => {
                         if let Some(ref s) = bonus {
                             if s == child {
                                 // We're the bonus, keep going
-                                paths_to_end += explore_bonus(graph.clone(), child.clone(), next_path.clone(), bonus.clone());
+                                paths_to_end += explore_bonus(
+                                    graph.clone(),
+                                    child.clone(),
+                                    next_path.clone(),
+                                    bonus.clone(),
+                                );
                             } else {
                                 // Another node is the bonus, we're done.
                             }
@@ -86,23 +105,32 @@ fn explore_bonus(graph: Graph, node: String, cpath: Vec<String>, bonus: Option<S
                                 // Can't be bonus, done
                             } else {
                                 // No bonus picked yet, try this one
-                                paths_to_end += explore_bonus(graph.clone(), child.clone(), next_path.clone(), Some(child.clone()));
+                                paths_to_end += explore_bonus(
+                                    graph.clone(),
+                                    child.clone(),
+                                    next_path.clone(),
+                                    Some(child.clone()),
+                                );
                             }
                         }
-                    },
+                    }
                     _ => {
                         // Already visited this child the max # of times
                     }
                 }
             } else {
-                paths_to_end += explore_bonus(graph.clone(), child.clone(), next_path.clone(), bonus.clone());
+                paths_to_end += explore_bonus(
+                    graph.clone(),
+                    child.clone(),
+                    next_path.clone(),
+                    bonus.clone(),
+                );
             }
         }
     }
 
     paths_to_end
 }
-
 
 #[aoc(day12, part1)]
 pub fn part1(input: &[Edge]) -> u32 {
