@@ -53,11 +53,9 @@ fn render(dots: &[Point]) {
     let max_x = dots.iter().map(|p| p.0).max().unwrap();
     let max_y = dots.iter().map(|p| p.1).max().unwrap();
 
-    let dotset = dots.iter().copied().collect::<HashSet<_>>();
-
     for y in 0..=max_y {
         for x in 0..=max_x {
-            let val = if dotset.contains(&(x, y)) { '#' } else { ' ' };
+            let val = if dots.contains(&(x, y)) { '#' } else { ' ' };
             print!("{}", val);
         }
         println!();
