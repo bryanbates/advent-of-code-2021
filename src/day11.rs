@@ -139,16 +139,16 @@ fn step(grid: &mut Grid) -> usize {
     flashed.len()
 }
 
-// fn render_map(grid: &GridMap) {
-//     for y in 0..ROWS {
-//         for x in 0..COLS {
-//             let val = grid.get(&(x, y)).unwrap();
-//             let ch = (*val + b'0') as char;
-//             print!("{}", ch);
-//         }
-//         println!();
-//     }
-// }
+fn render_map(grid: &GridMap) {
+    for y in 0..ROWS {
+        for x in 0..COLS {
+            let val = grid.get(&(x, y)).unwrap();
+            let ch = (*val + b'0') as char;
+            print!("{}", ch);
+        }
+        println!();
+    }
+}
 
 fn step_map(grid: &mut GridMap) -> usize {
     // energy++
