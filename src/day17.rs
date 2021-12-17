@@ -3,6 +3,10 @@ use std::collections::HashSet;
 use std::cmp::{max, min};
 use std::ops::RangeInclusive;
 
+use itertools::Itertools;
+
+use rayon::prelude::*;
+
 type Position = (i32, i32);
 type Velocity = (i32, i32);
 type Target = (RangeInclusive<i32>, RangeInclusive<i32>);
@@ -57,47 +61,41 @@ fn step((x, y): Position, (dx, dy): Velocity) -> (Position, Velocity) {
     (pos, vel)
 }
 
-fn iterate(v0: Velocity, t: Target) -> Option<i32> {
+fn iterate(v0: Velocity, (tx, ty): Target) -> Option<(Velocity, i32)> {
     let mut p: Position = (0, 0);
     let mut v: Velocity = v0;
 
     let mut max_y = -1000;
 
-    let mut on_target = false;
-
-    let max_x = t.0.clone().max().unwrap();
-    let min_y = t.1.clone().min().unwrap();
+    let max_x = tx.clone().max().unwrap();
+    let min_y = ty.clone().min().unwrap();
 
     // Are we past our target zone?
     while p.0 <= max_x && p.1 >= min_y {
+        // For some reason, can't use a destructuring bind here...
         let res = step(p, v);
         p = res.0;
         v = res.1;
         max_y = max(max_y, p.1);
-        if t.0.contains(&p.0) && t.1.contains(&p.1) {
-            on_target = true;
+        if tx.contains(&p.0) && ty.contains(&p.1) {
             // println!("In target! {:?}", v0);
+            return Some((v0, max_y));
         }
     }
 
-    if on_target {
-        Some(max_y)
-    } else {
-        None
-    }
+    None
 }
 
-#[aoc(day17, part1)]
+#[aoc(day17, part1, loop)]
 pub fn part1(input: &str) -> i32 {
     let (xrange, yrange) = parse_input(input);
-    // println!("{:?}, {:?}", xrange, yrange);
 
     let mut max_y = -100;
 
     for dx in 0..=xrange.clone().max().unwrap() {
         for dy in -100..100 {
             if let Some(dv) = iterate((dx, dy), (xrange.clone(), yrange.clone())) {
-                max_y = max(max_y, dv);
+                max_y = max(max_y, dv.1);
             }
         }
     }
@@ -105,10 +103,32 @@ pub fn part1(input: &str) -> i32 {
     max_y
 }
 
-#[aoc(day17, part2)]
+#[aoc(day17, part1, iter)]
+pub fn part1_iter(input: &str) -> i32 {
+    let (xrange, yrange) = parse_input(input);
+    (0..=xrange.clone().max().unwrap())
+        .cartesian_product(-100..100)
+        .filter_map(|v| iterate(v, (xrange.clone(), yrange.clone())))
+        .map(|(_, max_y)| max_y)
+        .max()
+        .unwrap()
+}
+
+#[aoc(day17, part1, parallel)]
+pub fn part1_parallel(input: &str) -> i32 {
+    let (xrange, yrange) = parse_input(input);
+    (0..=xrange.clone().max().unwrap())
+        .cartesian_product(-100..100)
+        .par_bridge()
+        .filter_map(|v| iterate(v, (xrange.clone(), yrange.clone())))
+        .map(|(_, max_y)| max_y)
+        .max()
+        .unwrap()
+}
+
+#[aoc(day17, part2, loop)]
 pub fn part2(input: &str) -> usize {
     let (xrange, yrange) = parse_input(input);
-    // println!("{:?}, {:?}", xrange, yrange);
 
     let mut ds: HashSet<Velocity> = HashSet::new();
 
@@ -123,6 +143,29 @@ pub fn part2(input: &str) -> usize {
     ds.len()
 }
 
+#[aoc(day17, part2, iter)]
+pub fn part2_iter(input: &str) -> usize {
+    let (xrange, yrange) = parse_input(input);
+    (0..=xrange.clone().max().unwrap())
+        .cartesian_product(-100..100)
+        .filter_map(|v| iterate(v, (xrange.clone(), yrange.clone())))
+        .map(|(v, _)| v)
+        .collect::<HashSet<_>>()
+        .len()
+}
+
+#[aoc(day17, part2, parallel)]
+pub fn part2_parallel(input: &str) -> usize {
+    let (xrange, yrange) = parse_input(input);
+    (0..=xrange.clone().max().unwrap())
+        .cartesian_product(-100..100)
+        .par_bridge()
+        .filter_map(|v| iterate(v, (xrange.clone(), yrange.clone())))
+        .map(|(v, _)| v)
+        .collect::<HashSet<_>>()
+        .len()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -132,11 +175,15 @@ mod tests {
 
     #[test]
     fn part1_ex1() {
-        assert_eq!(part1(EXAMPLE_INPUT), 45)
+        assert_eq!(part1(EXAMPLE_INPUT), 45);
+        assert_eq!(part1_iter(EXAMPLE_INPUT), 45);
+        assert_eq!(part1_parallel(EXAMPLE_INPUT), 45);
     }
 
     #[test]
     fn part2_ex1() {
-        assert_eq!(part2(EXAMPLE_INPUT), 112)
+        assert_eq!(part2(EXAMPLE_INPUT), 112);
+        assert_eq!(part2_iter(EXAMPLE_INPUT), 112);
+        assert_eq!(part2_parallel(EXAMPLE_INPUT), 112);
     }
 }
