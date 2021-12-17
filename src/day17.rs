@@ -126,6 +126,13 @@ pub fn part1_parallel(input: &str) -> i32 {
         .unwrap()
 }
 
+#[aoc(day17, part1, geometry)]
+pub fn part1_geometry(input: &str) -> i32 {
+    let (_, yrange) = parse_input(input);
+    let y_min = yrange.min().unwrap().abs();
+    (y_min * (y_min - 1)) / 2
+}
+
 #[aoc(day17, part2, loop)]
 pub fn part2(input: &str) -> usize {
     let (xrange, yrange) = parse_input(input);
@@ -178,6 +185,7 @@ mod tests {
         assert_eq!(part1(EXAMPLE_INPUT), 45);
         assert_eq!(part1_iter(EXAMPLE_INPUT), 45);
         assert_eq!(part1_parallel(EXAMPLE_INPUT), 45);
+        assert_eq!(part1_geometry(EXAMPLE_INPUT), 45);
     }
 
     #[test]
