@@ -56,8 +56,7 @@ fn parse_input(input: &str) -> Target {
 
 fn step((x, y): Position, (dx, dy): Velocity) -> (Position, Velocity) {
     let pos = (x + dx, y + dy);
-    let ddx = if dx > 0 { -1 } else { 0 };
-    let vel = (dx + ddx, dy - 1);
+    let vel = (dx - dx.signum(), dy - 1);
     (pos, vel)
 }
 
