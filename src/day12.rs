@@ -100,18 +100,16 @@ fn explore_bonus(graph: Graph, node: String, cpath: Vec<String>, bonus: Option<S
                             } else {
                                 // Another node is the bonus, we're done.
                             }
+                        } else if child == "start" || child == "end" {
+                            // Can't be bonus, done
                         } else {
-                            if child == "start" || child == "end" {
-                                // Can't be bonus, done
-                            } else {
-                                // No bonus picked yet, try this one
-                                paths_to_end += explore_bonus(
-                                    graph.clone(),
-                                    child.clone(),
-                                    next_path.clone(),
-                                    Some(child.clone()),
-                                );
-                            }
+                            // No bonus picked yet, try this one
+                            paths_to_end += explore_bonus(
+                                graph.clone(),
+                                child.clone(),
+                                next_path.clone(),
+                                Some(child.clone()),
+                            );
                         }
                     }
                     _ => {

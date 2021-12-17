@@ -1,4 +1,3 @@
-use std::cmp::{max, min};
 use std::collections::VecDeque;
 
 fn to_bits(ch: u8) -> [u8; 4] {
@@ -130,9 +129,9 @@ fn read_packet(bits: &mut VecDeque<u8>) -> Packet {
 
                     let mut subs: Vec<Packet> = Vec::new();
 
-                    for p in 0..npackets {
+                    for _ in 0..npackets {
                         // println!("BITS: {:?}", bits);
-                        // println!("Reading sub packet {} of {}", p, npackets);
+                        // println!("Reading sub packet {} of {}", _, npackets);
 
                         let packet = read_packet(bits);
                         subs.push(packet);

@@ -92,6 +92,7 @@ fn neighbors_of(p: Point) -> Vec<Point> {
 
 fn step(grid: &mut Grid) -> usize {
     // energy++
+    #[allow(clippy::needless_range_loop)]
     for x in 0..COLS {
         for y in 0..ROWS {
             grid[x][y] += 1;
@@ -106,6 +107,7 @@ fn step(grid: &mut Grid) -> usize {
         // println!("GRID: {:?}", grid);
         // Stop if there's no octopus with enough energy left to flash
         let mut again = false;
+        #[allow(clippy::needless_range_loop)]
         for x in 0..COLS {
             for y in 0..ROWS {
                 if grid[x][y] > 9 {
@@ -139,6 +141,7 @@ fn step(grid: &mut Grid) -> usize {
     flashed.len()
 }
 
+#[allow(dead_code)]
 fn render_map(grid: &GridMap) {
     for y in 0..ROWS {
         for x in 0..COLS {

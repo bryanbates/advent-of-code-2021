@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use std::cmp::{max, min};
+use std::cmp::max;
 use std::ops::RangeInclusive;
 
 use itertools::Itertools;

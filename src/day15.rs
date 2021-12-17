@@ -85,6 +85,7 @@ fn dijkstra(grid: Grid, start: Point, end: Point, cols: usize, rows: usize) -> u
     cost
 }
 
+#[allow(dead_code)]
 fn render_map(grid: &Grid, cols: usize, rows: usize) {
     for y in 0..rows {
         for x in 0..cols {
