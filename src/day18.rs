@@ -1,22 +1,20 @@
-type Chunk = Vec<String>;
+type Puzzle = &str;
 
-// Default implementation: Chunk on whitespace
-#[aoc_generator(day18)]
-pub fn input_generator(input: &str) -> Vec<Vec<String>> {
-    input.lines().map(|l| {
-        l.trim().split(' ').map(|s| s.to_owned()).collect::<Chunk>()
-    }).collect()
+fn parse_input(input: &str) -> Puzzle {
+    input
 }
 
 
 #[aoc(day18, part1)]
-pub fn part1(input: &[Chunk]) -> u32 {
-    input.len() as u32
+pub fn part1(input: &str) -> u32 {
+    let puzzle = parse_input(input);
+    0
 }
 
 #[aoc(day18, part2)]
-pub fn part2(input: &[Chunk]) -> u32 {
-    input.iter().map(|c| c.len()).sum::<usize>() as u32
+pub fn part2(input: &str) -> u32 {
+    let puzzle = parse_input(input);
+    0
 }
 
 #[cfg(test)]
@@ -29,11 +27,11 @@ d e f
 
     #[test]
     fn part1_ex1() {
-        assert_eq!(part1(&input_generator(EXAMPLE_INPUT)), 2)
+        assert_eq!(part1(EXAMPLE_INPUT), 2)
     }
 
     #[test]
     fn part2_ex1() {
-        assert_eq!(part2(&input_generator(EXAMPLE_INPUT)), 6)
+        assert_eq!(part2(EXAMPLE_INPUT), 6)
     }
 }
