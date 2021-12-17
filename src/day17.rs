@@ -1,39 +1,147 @@
-type Chunk = Vec<String>;
+use std::collections::HashSet;
 
-// Default implementation: Chunk on whitespace
-#[aoc_generator(day17)]
-pub fn input_generator(input: &str) -> Vec<Vec<String>> {
-    input.lines().map(|l| {
-        l.trim().split(' ').map(|s| s.to_owned()).collect::<Chunk>()
-    }).collect()
+use std::cmp::{max, min};
+use std::ops::RangeInclusive;
+
+type Position = (i32, i32);
+type Velocity = (i32, i32);
+type Target = (RangeInclusive<i32>, RangeInclusive<i32>);
+
+fn parse_input(input: &str) -> Target {
+    let mut xrange: RangeInclusive<i32> = 0..=0;
+    let mut yrange: RangeInclusive<i32> = 0..=0;
+    for chunk in input.trim().split_whitespace() {
+        match chunk.chars().next().unwrap() {
+            'x' => {
+                let mut vals = chunk[2..].split("..");
+                let start = vals
+                    .next()
+                    .unwrap()
+                    .trim_matches(',')
+                    .parse::<i32>()
+                    .unwrap();
+                let end = vals
+                    .next()
+                    .unwrap()
+                    .trim_matches(',')
+                    .parse::<i32>()
+                    .unwrap();
+                xrange = start..=end;
+            }
+            'y' => {
+                let mut vals = chunk[2..].split("..");
+                let start = vals
+                    .next()
+                    .unwrap()
+                    .trim_matches(',')
+                    .parse::<i32>()
+                    .unwrap();
+                let end = vals
+                    .next()
+                    .unwrap()
+                    .trim_matches(',')
+                    .parse::<i32>()
+                    .unwrap();
+                yrange = start..=end;
+            }
+            _ => {}
+        }
+    }
+    (xrange, yrange)
 }
 
+fn step((x, y): Position, (dx, dy): Velocity) -> (Position, Velocity) {
+    let pos = (x + dx, y + dy);
+    let ddx = if dx > 0 {
+        -1
+    } else if dx == 0 {
+        0
+    } else {
+        1
+    };
+    let vel = (dx + ddx, dy - 1);
+    (pos, vel)
+}
+
+fn iterate(v0: Velocity, t: Target) -> i32 {
+    let mut p: Position = (0, 0);
+    let mut v: Velocity = v0;
+
+    let mut max_y = -1000;
+
+    let mut on_target = false;
+
+    let max_x = t.0.clone().max().unwrap();
+    let min_y = t.1.clone().min().unwrap();
+
+    while p.0 <= max_x && p.1 >= min_y {
+        let res = step(p, v);
+        p = res.0;
+        v = res.1;
+        max_y = max(max_y, p.1);
+        if t.0.contains(&p.0) && t.1.clone().contains(&p.1) {
+            on_target = true;
+            println!("In target! {:?}", v0);
+        }
+    }
+
+    if on_target {
+        max_y
+    } else {
+        -1000
+    }
+}
 
 #[aoc(day17, part1)]
-pub fn part1(input: &[Chunk]) -> u32 {
-    input.len() as u32
+pub fn part1(input: &str) -> i32 {
+    let (xrange, yrange) = parse_input(input);
+    println!("{:?}, {:?}", xrange, yrange);
+
+    let mut max_y = -1000;
+
+    for dx in 0..1000 {
+        for dy in 0..1000 {
+            let dv = iterate((dx, dy), (xrange.clone(), yrange.clone()));
+            max_y = max(dv, max_y);
+        }
+    }
+
+    max_y
 }
 
 #[aoc(day17, part2)]
-pub fn part2(input: &[Chunk]) -> u32 {
-    input.iter().map(|c| c.len()).sum::<usize>() as u32
+pub fn part2(input: &str) -> usize {
+    let (xrange, yrange) = parse_input(input);
+    println!("{:?}, {:?}", xrange, yrange);
+
+    let mut ds: HashSet<Velocity> = HashSet::new();
+
+    for dx in 0..1000 {
+        for dy in -500..1000 {
+            let dv = iterate((dx, dy), (xrange.clone(), yrange.clone()));
+            if dv != -1000 {
+                ds.insert((dx, dy));
+            }
+        }
+    }
+
+    ds.len()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    const EXAMPLE_INPUT: &str = r#"a b c
-d e f
+    const EXAMPLE_INPUT: &str = r#"target area: x=20..30, y=-10..-5
 "#;
 
     #[test]
     fn part1_ex1() {
-        assert_eq!(part1(&input_generator(EXAMPLE_INPUT)), 2)
+        assert_eq!(part1(EXAMPLE_INPUT), 45)
     }
 
     #[test]
     fn part2_ex1() {
-        assert_eq!(part2(&input_generator(EXAMPLE_INPUT)), 6)
+        assert_eq!(part2(EXAMPLE_INPUT), 112)
     }
 }
