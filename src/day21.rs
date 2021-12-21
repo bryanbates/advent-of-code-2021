@@ -82,6 +82,8 @@ pub fn part2(input: &str) -> u64 {
     let mut wins_p1: u64 = 0;
     let mut wins_p2: u64 = 0;
 
+    let steps: [(u32, u64); 7] = [(3, 1), (4, 3), (5, 6), (6, 7), (7, 6), (8, 3), (9, 1)];
+
     // init
     verse.insert((p1_start, 0, p2_start, 0), 1);
 
@@ -91,75 +93,16 @@ pub fn part2(input: &str) -> u64 {
 
         // P1 moves
         for (game, count) in verse {
-            // next states
-            let p1_next = move_pawn(game.0, 3);
-            let s1_next = game.1 + p1_next;
-            if s1_next >= 21 {
-                wins_p1 += count;
-            } else {
-                *p2_verse
+            for step in steps {
+                let p1_next = move_pawn(game.0, step.0);
+                let s1_next = game.1 + p1_next;
+                if s1_next >= 21 {
+                    wins_p1 += count * step.1;
+                } else {
+                    *p2_verse
                     .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count;
-            }
-
-            let p1_next = move_pawn(game.0, 4);
-            let s1_next = game.1 + p1_next;
-            if s1_next >= 21 {
-                wins_p1 += count * 3;
-            } else {
-                *p2_verse
-                    .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count * 3;
-            }
-
-            let p1_next = move_pawn(game.0, 5);
-            let s1_next = game.1 + p1_next;
-            if s1_next >= 21 {
-                wins_p1 += count * 6;
-            } else {
-                *p2_verse
-                    .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count * 6;
-            }
-
-            let p1_next = move_pawn(game.0, 6);
-            let s1_next = game.1 + p1_next;
-            if s1_next >= 21 {
-                wins_p1 += count * 7;
-            } else {
-                *p2_verse
-                    .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count * 7;
-            }
-
-            let p1_next = move_pawn(game.0, 7);
-            let s1_next = game.1 + p1_next;
-            if s1_next >= 21 {
-                wins_p1 += count * 6;
-            } else {
-                *p2_verse
-                    .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count * 6;
-            }
-
-            let p1_next = move_pawn(game.0, 8);
-            let s1_next = game.1 + p1_next;
-            if s1_next >= 21 {
-                wins_p1 += count * 3;
-            } else {
-                *p2_verse
-                    .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count * 3;
-            }
-
-            let p1_next = move_pawn(game.0, 9);
-            let s1_next = game.1 + p1_next;
-            if s1_next >= 21 {
-                wins_p1 += count;
-            } else {
-                *p2_verse
-                    .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count;
+                    .or_insert(0) += count * step.1;
+                }
             }
         }
 
@@ -167,75 +110,16 @@ pub fn part2(input: &str) -> u64 {
 
         // P2 moves
         for (game, count) in p2_verse {
-            // next states
-            let p2_next = move_pawn(game.2, 3);
-            let s2_next = game.3 + p2_next;
-            if s2_next >= 21 {
-                wins_p2 += count;
-            } else {
-                *next_verse
-                    .entry((game.0, game.1, p2_next, s2_next))
-                    .or_insert(0) += count;
-            }
-
-            let p2_next = move_pawn(game.2, 4);
-            let s2_next = game.3 + p2_next;
-            if s2_next >= 21 {
-                wins_p2 += count * 3;
-            } else {
-                *next_verse
-                    .entry((game.0, game.1, p2_next, s2_next))
-                    .or_insert(0) += count * 3;
-            }
-
-            let p2_next = move_pawn(game.2, 5);
-            let s2_next = game.3 + p2_next;
-            if s2_next >= 21 {
-                wins_p2 += count * 6;
-            } else {
-                *next_verse
-                    .entry((game.0, game.1, p2_next, s2_next))
-                    .or_insert(0) += count * 6;
-            }
-
-            let p2_next = move_pawn(game.2, 6);
-            let s2_next = game.3 + p2_next;
-            if s2_next >= 21 {
-                wins_p2 += count * 7;
-            } else {
-                *next_verse
-                    .entry((game.0, game.1, p2_next, s2_next))
-                    .or_insert(0) += count * 7;
-            }
-
-            let p2_next = move_pawn(game.2, 7);
-            let s2_next = game.3 + p2_next;
-            if s2_next >= 21 {
-                wins_p2 += count * 6;
-            } else {
-                *next_verse
-                    .entry((game.0, game.1, p2_next, s2_next))
-                    .or_insert(0) += count * 6;
-            }
-
-            let p2_next = move_pawn(game.2, 8);
-            let s2_next = game.3 + p2_next;
-            if s2_next >= 21 {
-                wins_p2 += count * 3;
-            } else {
-                *next_verse
-                    .entry((game.0, game.1, p2_next, s2_next))
-                    .or_insert(0) += count * 3;
-            }
-
-            let p2_next = move_pawn(game.2, 9);
-            let s2_next = game.3 + p2_next;
-            if s2_next >= 21 {
-                wins_p2 += count;
-            } else {
-                *next_verse
-                    .entry((game.0, game.1, p2_next, s2_next))
-                    .or_insert(0) += count;
+            for step in steps {
+                let p2_next = move_pawn(game.2, step.0);
+                let s2_next = game.3 + p2_next;
+                if s2_next >= 21 {
+                    wins_p2 += count * step.1;
+                } else {
+                    *next_verse
+                        .entry((game.0, game.1, p2_next, s2_next))
+                        .or_insert(0) += count * step.1;
+                }
             }
         }
 
