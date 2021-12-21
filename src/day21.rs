@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+extern crate fxhash;
+
+use fxhash::FxHashMap;
 
 type Die = (u32, u64);
 
@@ -77,7 +79,8 @@ pub fn part2(input: &str) -> u64 {
     let (p1_start, p2_start) = parse_input(input);
 
     // p1 pos, p1 score, p2 pos, p2 score -> count of multiverses
-    let mut verse: HashMap<(u32, u32, u32, u32), u64> = HashMap::new();
+    let mut verse: FxHashMap<(u32, u32, u32, u32), u64> = FxHashMap::default();
+    let mut alt: FxHashMap<(u32, u32, u32, u32), u64> = FxHashMap::default();
 
     let mut wins_p1: u64 = 0;
     let mut wins_p2: u64 = 0;
@@ -85,45 +88,40 @@ pub fn part2(input: &str) -> u64 {
     let steps: [(u32, u64); 7] = [(3, 1), (4, 3), (5, 6), (6, 7), (7, 6), (8, 3), (9, 1)];
 
     // init
-    verse.insert((p1_start, 0, p2_start, 0), 1);
+    verse.insert((p1_start - 1, 0, p2_start - 1, 0), 1);
 
     while !verse.is_empty() {
         // println!("VERSES: {:?}", verse.len());
-        let mut p2_verse: HashMap<(u32, u32, u32, u32), u64> = HashMap::new();
-
         // P1 moves
-        for (game, count) in verse {
+        for (game, count) in verse.drain() {
             for step in steps {
-                let p1_next = move_pawn(game.0, step.0);
-                let s1_next = game.1 + p1_next;
+                let p1_next = (game.0 + step.0) % 10;
+                let s1_next = game.1 + p1_next + 1;
                 if s1_next >= 21 {
                     wins_p1 += count * step.1;
                 } else {
-                    *p2_verse
-                    .entry((p1_next, s1_next, game.2, game.3))
-                    .or_insert(0) += count * step.1;
+                    *alt
+                        .entry((p1_next, s1_next, game.2, game.3))
+                        .or_insert(0) += count * step.1;
                 }
             }
         }
 
-        let mut next_verse: HashMap<(u32, u32, u32, u32), u64> = HashMap::new();
-
         // P2 moves
-        for (game, count) in p2_verse {
+        for (game, count) in alt.drain() {
             for step in steps {
-                let p2_next = move_pawn(game.2, step.0);
-                let s2_next = game.3 + p2_next;
+                let p2_next = (game.2 + step.0) % 10;
+                let s2_next = game.3 + p2_next + 1;
                 if s2_next >= 21 {
                     wins_p2 += count * step.1;
                 } else {
-                    *next_verse
+                    *verse
                         .entry((game.0, game.1, p2_next, s2_next))
                         .or_insert(0) += count * step.1;
                 }
             }
         }
 
-        verse = next_verse;
     }
 
     // println!("VERSE: {:?}", verse);
