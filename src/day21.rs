@@ -79,16 +79,16 @@ pub fn part2(input: &str) -> u64 {
     let (p1_start, p2_start) = parse_input(input);
 
     // p1 pos, p1 score, p2 pos, p2 score -> count of multiverses
-    let mut verse: FxHashMap<(u32, u32, u32, u32), u64> = FxHashMap::default();
-    let mut alt: FxHashMap<(u32, u32, u32, u32), u64> = FxHashMap::default();
+    let mut verse: FxHashMap<(u8, u8, u8, u8), u64> = FxHashMap::default();
+    let mut alt: FxHashMap<(u8, u8, u8, u8), u64> = FxHashMap::default();
 
     let mut wins_p1: u64 = 0;
     let mut wins_p2: u64 = 0;
 
-    let steps: [(u32, u64); 7] = [(3, 1), (4, 3), (5, 6), (6, 7), (7, 6), (8, 3), (9, 1)];
+    let steps: [(u8, u64); 7] = [(3, 1), (4, 3), (5, 6), (6, 7), (7, 6), (8, 3), (9, 1)];
 
     // init
-    verse.insert((p1_start - 1, 0, p2_start - 1, 0), 1);
+    verse.insert((p1_start as u8 - 1, 0, p2_start as u8 - 1, 0), 1);
 
     while !verse.is_empty() {
         // println!("VERSES: {:?}", verse.len());
@@ -100,9 +100,7 @@ pub fn part2(input: &str) -> u64 {
                 if s1_next >= 21 {
                     wins_p1 += count * step.1;
                 } else {
-                    *alt
-                        .entry((p1_next, s1_next, game.2, game.3))
-                        .or_insert(0) += count * step.1;
+                    *alt.entry((p1_next, s1_next, game.2, game.3)).or_insert(0) += count * step.1;
                 }
             }
         }
@@ -115,13 +113,10 @@ pub fn part2(input: &str) -> u64 {
                 if s2_next >= 21 {
                     wins_p2 += count * step.1;
                 } else {
-                    *verse
-                        .entry((game.0, game.1, p2_next, s2_next))
-                        .or_insert(0) += count * step.1;
+                    *verse.entry((game.0, game.1, p2_next, s2_next)).or_insert(0) += count * step.1;
                 }
             }
         }
-
     }
 
     // println!("VERSE: {:?}", verse);
